@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://additive-1.tres" type="Material" id=1]
 [ext_resource path="res://proc/sketch_200418a/sprite.png" type="Texture" id=2]
+[ext_resource path="res://sound/1_s.ogg" type="AudioStream" id=3]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
@@ -10,13 +11,38 @@ export(int, 0, 2) var group = 0
 export(float, 0.5, 2) var size = 1
 
 var colors = [Color(1,0,0), Color(0,1,0), Color(0,0,1)];
+var sounds = [
+	[
+		load('res://sound/1_s.ogg'),
+		load('res://sound/2_s.ogg'),
+		load('res://sound/3_s.ogg'),
+	],
+	[
+		load('res://sound/1_s.ogg'),
+		load('res://sound/2_s.ogg'),
+		load('res://sound/3_s.ogg'),
+	],
+	[
+		load('res://sound/1_s.ogg'),
+		load('res://sound/2_s.ogg'),
+		load('res://sound/3_s.ogg'),
+	],
+];
 
 func randomize():
 	group = ceil(rand_range(-0.99, 2))
 	size = rand_range(0.5, 2)
 
 func _ready():
-	$RigidBody2D/sprite.modulate = colors[group]
+	get_node('../../Timer').connect('timeout', self, 'tick')
+	var group_sounds = sounds[group]
+	group_sounds.shuffle()
+	$AudioStreamPlayer.stream = group_sounds[0];
+	$AudioStreamPlayer.stream.set_loop(false)
+	$RigidBody2D/CPUParticles2D.modulate = colors[group]
+	$RigidBody2D/CPUParticles2D.transform = Transform2D(0, Vector2(0,0)).scaled(Vector2(size,size) * 1.1)
+	modulate = colors[group]
+	$RigidBody2D.linear_damp = 0.01
 	$RigidBody2D.linear_velocity = Vector2(0,rand_range(100, 300)).rotated(rand_range(0, 2.0*PI))
 	$RigidBody2D/sprite.scale = Vector2(size, size)
 	$RigidBody2D/CollisionShape2D.transform = $RigidBody2D/CollisionShape2D.transform.scaled(Vector2(size,size))
@@ -27,22 +53,70 @@ func _process(delta):
 
 func get_position():
 	return $RigidBody2D.get_global_transform().get_origin()
+
+var activated_since_last_tick = false
+var ticks_without_tick_activation = 0
+
+func activate():
+	$AudioStreamPlayer.play()
+	$RigidBody2D/CPUParticles2D.emitting = true
+	$RigidBody2D/CPUParticles2D.restart()
+	activated_since_last_tick = true
+
+var links = []
+
+func add_link(link):
+	links.append(link)
+	$RigidBody2D.linear_damp = 1
+
+func remove_link(link):
+	links.remove(links.find(link))
+	$RigidBody2D.linear_damp = 0.1
+	$RigidBody2D.linear_velocity = Vector2(0,rand_range(100, 300)).rotated(rand_range(0, 2.0*PI))
+
+func get_link_to(ball):
+	for link in links:
+		if link.connects(ball):
+			return link
+	return null
+
+func tick():
+	if activated_since_last_tick:
+		for link in links:
+			var peer = link.other_for(self)
+			peer.tick_activate()
+		activated_since_last_tick = false
+	ticks_without_tick_activation = ticks_without_tick_activation + 1
+
+func tick_activate():
+	if ticks_without_tick_activation > 1:
+		activate()
+		ticks_without_tick_activation = 0
+
 "
 
 [sub_resource type="PhysicsMaterial" id=2]
 friction = 0.0
+rough = true
 bounce = 1.0
+absorbent = true
 
 [sub_resource type="CircleShape2D" id=3]
 radius = 200.0
+
+[sub_resource type="Gradient" id=4]
+offsets = PoolRealArray( 0, 0.291829, 0.770428, 0.996109 )
+colors = PoolColorArray( 0, 0, 0, 1, 0.742188, 0.742188, 0.742188, 1, 0.372559, 0.372559, 0.372559, 1, 0, 0, 0, 1 )
 
 [node name="Node2D" type="Node2D"]
 script = SubResource( 1 )
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
+mass = 748.0
 physics_material_override = SubResource( 2 )
 gravity_scale = 0.0
-linear_damp = 0.0
+linear_damp = 1.0
+angular_damp = 128.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
 shape = SubResource( 3 )
@@ -50,3 +124,24 @@ shape = SubResource( 3 )
 [node name="sprite" type="Sprite" parent="RigidBody2D"]
 material = ExtResource( 1 )
 texture = ExtResource( 2 )
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="RigidBody2D"]
+material = ExtResource( 1 )
+emitting = false
+amount = 32
+one_shot = true
+explosiveness = 0.86
+texture = ExtResource( 2 )
+emission_shape = 1
+emission_sphere_radius = 35.19
+spread = 180.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 1000.0
+linear_accel = -500.0
+scale_amount = 0.0
+scale_amount_random = 0.2
+color_ramp = SubResource( 4 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+pause_mode = 2
+stream = ExtResource( 3 )

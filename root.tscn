@@ -10,6 +10,9 @@ script/source = "extends Node2D
 # var a = 2
 # var b = \"text\"
 
+func _init():
+	randomize();
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
@@ -19,11 +22,19 @@ onready var viewport: Viewport = get_node(\"ViewportContainer/Viewport\");
 onready var camera: Camera2D = get_node(\"ViewportContainer/Viewport/viewer/camera\");
 onready var content = get_node(\"ViewportContainer/Viewport/content\");
 
+var drag_key
+
 func _input(event):
 	if event.is_action('exit'):
 		get_tree().quit();
+	elif event.is_action_pressed(\"click\"):
+		drag_key = content.start_drag(camera.get_global_mouse_position())
 	elif event.is_action_released('click'):
-		content.on_click(camera.get_global_mouse_position())
+		if drag_key:
+			content.end_drag(drag_key, camera.get_global_mouse_position())
+		else:
+			content.on_click(camera.get_global_mouse_position())
+		drag_key = null
 
 
 func _process(delta):
