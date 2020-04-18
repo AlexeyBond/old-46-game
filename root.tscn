@@ -1,0 +1,85 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://content-1.tscn" type="PackedScene" id=1]
+[ext_resource path="res://postprocess-1.tres" type="Material" id=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+onready var viewer = get_node(\"ViewportContainer/Viewport/viewer\");
+onready var viewport: Viewport = get_node(\"ViewportContainer/Viewport\");
+onready var camera: Camera2D = get_node(\"ViewportContainer/Viewport/viewer/camera\");
+onready var content = get_node(\"ViewportContainer/Viewport/content\");
+
+func _input(event):
+	if event.is_action('exit'):
+		get_tree().quit();
+	elif event.is_action_released('click'):
+		content.on_click(camera.get_global_mouse_position())
+
+
+func _process(delta):
+	var rect: Rect2 = content.get_intrest_rect()
+	var position = rect.position + rect.size * 0.5
+	viewer.set_position(position)
+	
+	var zoom = max(
+		rect.size.x / viewport.size.x,
+		rect.size.y / viewport.size.y
+	)
+
+	zoom = max(zoom, 1.0)
+	
+	camera.zoom = Vector2(zoom, zoom)
+"
+
+[node name="Node2D" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="ViewportContainer" type="ViewportContainer" parent="."]
+margin_right = 1913.0
+margin_bottom = 1088.0
+stretch = true
+
+[node name="Viewport" type="Viewport" parent="ViewportContainer"]
+size = Vector2( 1913, 1088 )
+handle_input_locally = false
+disable_3d = true
+usage = 0
+render_target_update_mode = 3
+
+[node name="content" parent="ViewportContainer/Viewport" instance=ExtResource( 1 )]
+
+[node name="viewer" type="Node2D" parent="ViewportContainer/Viewport"]
+
+[node name="camera" type="Camera2D" parent="ViewportContainer/Viewport/viewer"]
+current = true
+zoom = Vector2( 2, 2 )
+limit_left = 0
+limit_top = 0
+limit_right = 50000
+limit_bottom = 50000
+limit_smoothed = true
+drag_margin_h_enabled = false
+drag_margin_v_enabled = false
+smoothing_enabled = true
+smoothing_speed = 100.0
+drag_margin_left = 1.0
+drag_margin_top = 1.0
+drag_margin_right = 1.0
+drag_margin_bottom = 1.0
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 1920.0
+margin_bottom = 1080.0

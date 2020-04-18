@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://postprocess-shader.shader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/threshold = 0.499
+shader_param/edge = 0.036
+shader_param/color1 = Color( 1, 0.686275, 0.976471, 1 )
+shader_param/color2 = Color( 0.87451, 0.835294, 1, 1 )
+shader_param/color3 = Color( 1, 0.729412, 0.623529, 1 )
+shader_param/color_bg = Color( 1, 1, 0.768627, 1 )

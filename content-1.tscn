@@ -1,0 +1,101 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://ball.tscn" type="PackedScene" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+
+onready var balls = $balls
+
+onready var ballscene = load('res://ball.tscn')
+
+func on_click(world_pos):
+	var new_ball = ballscene.instance()
+	new_ball.randomize()
+	new_ball.transform = Transform2D(0, world_pos)
+	balls.add_child(new_ball);
+
+func get_intrest_rect():
+	var ch0pos = balls.get_children()[0].get_position();
+	var rect = Rect2(ch0pos, Vector2(0,0))
+	for ch in balls.get_children():
+		rect = rect.expand(ch.get_position())
+	return rect.grow(100)
+"
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 100000, 115.094 )
+
+[node name="Node2D" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="borders" type="Node2D" parent="."]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="borders"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="borders/StaticBody2D"]
+position = Vector2( 4425.76, -86.5235 )
+shape = SubResource( 2 )
+one_way_collision_margin = 0.0
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="borders/StaticBody2D"]
+position = Vector2( 0, 50000 )
+shape = SubResource( 2 )
+one_way_collision_margin = 0.0
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="borders/StaticBody2D"]
+position = Vector2( -107.698, 6541.3 )
+rotation = 1.5708
+shape = SubResource( 2 )
+one_way_collision_margin = 0.0
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="borders/StaticBody2D"]
+position = Vector2( 50000, 0 )
+rotation = 1.5708
+shape = SubResource( 2 )
+one_way_collision_margin = 0.0
+
+[node name="balls" type="Node2D" parent="."]
+
+[node name="Node2D" parent="balls" instance=ExtResource( 1 )]
+position = Vector2( 25404, 17438.7 )
+group = 2
+
+[node name="Node2D2" parent="balls" instance=ExtResource( 1 )]
+position = Vector2( 26161.9, 17542 )
+group = 2
+
+[node name="Node2D3" parent="balls" instance=ExtResource( 1 )]
+position = Vector2( 25899.5, 17822.9 )
+group = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+margin_right = 195.0
+margin_bottom = 170.0
+
+[node name="ColorRect2" type="ColorRect" parent="."]
+visible = false
+margin_left = 43935.3
+margin_top = 127.464
+margin_right = 44130.3
+margin_bottom = 297.464
+
+[node name="ColorRect4" type="ColorRect" parent="."]
+visible = false
+margin_left = -115.492
+margin_top = 31605.7
+margin_right = 400.508
+margin_bottom = 32217.7

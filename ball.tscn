@@ -1,0 +1,52 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://additive-1.tres" type="Material" id=1]
+[ext_resource path="res://proc/sketch_200418a/sprite.png" type="Texture" id=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+export(int, 0, 2) var group = 0
+export(float, 0.5, 2) var size = 1
+
+var colors = [Color(1,0,0), Color(0,1,0), Color(0,0,1)];
+
+func randomize():
+	group = ceil(rand_range(-0.99, 2))
+	size = rand_range(0.5, 2)
+
+func _ready():
+	$RigidBody2D/sprite.modulate = colors[group]
+	$RigidBody2D.linear_velocity = Vector2(0,rand_range(100, 300)).rotated(rand_range(0, 2.0*PI))
+	$RigidBody2D/sprite.scale = Vector2(size, size)
+	$RigidBody2D/CollisionShape2D.transform = $RigidBody2D/CollisionShape2D.transform.scaled(Vector2(size,size))
+	
+
+func _process(delta):
+	pass
+
+func get_position():
+	return $RigidBody2D.get_global_transform().get_origin()
+"
+
+[sub_resource type="PhysicsMaterial" id=2]
+friction = 0.0
+bounce = 1.0
+
+[sub_resource type="CircleShape2D" id=3]
+radius = 200.0
+
+[node name="Node2D" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+physics_material_override = SubResource( 2 )
+gravity_scale = 0.0
+linear_damp = 0.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+shape = SubResource( 3 )
+
+[node name="sprite" type="Sprite" parent="RigidBody2D"]
+material = ExtResource( 1 )
+texture = ExtResource( 2 )
