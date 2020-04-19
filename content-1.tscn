@@ -1,7 +1,9 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://ball.tscn" type="PackedScene" id=1]
 [ext_resource path="res://link.tscn" type="PackedScene" id=2]
+[ext_resource path="res://additive-1.tres" type="Material" id=3]
+[ext_resource path="res://proc/sketch_200418c/sprite.png" type="Texture" id=4]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
@@ -102,6 +104,7 @@ func start_drag(position):
 	return get_ball_at_point(position)
 
 func end_drag(first_ball, position):
+	$drag_arrow.set_visible(false)
 	if not first_ball:
 		return
 	var second_ball = get_ball_at_point(position)
@@ -121,7 +124,14 @@ func end_drag(first_ball, position):
 	$links.add_child(lnk)
 	lnk.init(first_ball, second_ball)
 
-
+func drag_progress(ball, position):
+	$drag_arrow.modulate = ball.modulate
+	$drag_arrow.set_visible(true)
+	$drag_arrow.set_transform(Transform2D(
+		(position - ball.get_position()) / 512,
+		(position - ball.get_position()).rotated(PI * 0.5).normalized() * 0.5,
+		ball.get_position()
+	))
 "
 
 [sub_resource type="RectangleShape2D" id=2]
@@ -242,3 +252,9 @@ wait_time = 0.75
 autostart = true
 script = SubResource( 3 )
 i2 = 1
+
+[node name="drag_arrow" type="Sprite" parent="."]
+visible = false
+material = ExtResource( 3 )
+texture = ExtResource( 4 )
+offset = Vector2( 256, 0 )
