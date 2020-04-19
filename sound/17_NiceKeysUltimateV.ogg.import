@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/17_NiceKeysUltimateV.ogg-f378854734d1c40017540179d46a4c75.oggstr"
+
+[deps]
+
+source_file="res://sound/17_NiceKeysUltimateV.ogg"
+dest_files=[ "res://.import/17_NiceKeysUltimateV.ogg-f378854734d1c40017540179d46a4c75.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

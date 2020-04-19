@@ -1,8 +1,7 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://additive-1.tres" type="Material" id=1]
 [ext_resource path="res://proc/sketch_200418a/sprite.png" type="Texture" id=2]
-[ext_resource path="res://sound/1_s.ogg" type="AudioStream" id=3]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
@@ -13,19 +12,26 @@ export(float, 0.5, 2) var size = 1
 var colors = [Color(1,0,0), Color(0,1,0), Color(0,0,1)];
 var sounds = [
 	[
-		load('res://sound/1_s.ogg'),
-		load('res://sound/2_s.ogg'),
-		load('res://sound/3_s.ogg'),
+		load('res://sound/11_b.ogg'),
+		load('res://sound/12_b.ogg'),
+		load('res://sound/13_b.ogg'),
+		load('res://sound/14_b.ogg'),
+		load('res://sound/15_b.ogg'),
+		load('res://sound/16_b.ogg'),
 	],
 	[
-		load('res://sound/1_s.ogg'),
-		load('res://sound/2_s.ogg'),
-		load('res://sound/3_s.ogg'),
+		load('res://sound/7_g.ogg'),
+		load('res://sound/8_g.ogg'),
+		load('res://sound/9_g.ogg'),
+		load('res://sound/10_g.ogg'),
 	],
 	[
-		load('res://sound/1_s.ogg'),
-		load('res://sound/2_s.ogg'),
-		load('res://sound/3_s.ogg'),
+		load('res://sound/1_p.ogg'),
+		load('res://sound/2_p.ogg'),
+		load('res://sound/3_p.ogg'),
+		load('res://sound/4_p.ogg'),
+		load('res://sound/5_p.ogg'),
+		load('res://sound/6_p.ogg'),
 	],
 ];
 
@@ -90,7 +96,7 @@ var activate_linked_on_tick = -2
 
 func activate():
 	activate0()
-	activate_linked_on_tick = last_tick + 1
+	activate_linked_on_tick = last_tick + 2
 	last_activated_tick = last_tick
 
 func tick(tck):
@@ -102,8 +108,10 @@ func tick(tck):
 func tick_activate(tck):
 	last_tick = tck
 	
-	if last_activated_tick < (tck - 2):	
-		activate()
+	if last_activated_tick < (tck - 3):	
+		activate0()
+		activate_linked_on_tick = last_tick + 1
+		last_activated_tick = last_tick
 
 "
 
@@ -156,4 +164,3 @@ color_ramp = SubResource( 4 )
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 pause_mode = 2
-stream = ExtResource( 3 )

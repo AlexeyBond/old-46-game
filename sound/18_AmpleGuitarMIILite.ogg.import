@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/18_AmpleGuitarMIILite.ogg-c2ab6982441052f32f3b34d52e61109c.oggstr"
+
+[deps]
+
+source_file="res://sound/18_AmpleGuitarMIILite.ogg"
+dest_files=[ "res://.import/18_AmpleGuitarMIILite.ogg-c2ab6982441052f32f3b34d52e61109c.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
