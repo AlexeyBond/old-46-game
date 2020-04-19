@@ -15,7 +15,8 @@ func _init():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	resize()
+	get_tree().get_root().connect(\"size_changed\", self, \"resize\")
 
 onready var viewer = get_node(\"ViewportContainer/Viewport/viewer\");
 onready var viewport: Viewport = get_node(\"ViewportContainer/Viewport\");
@@ -40,7 +41,6 @@ func _input(event):
 func _process(delta):
 	var rect: Rect2 = content.get_intrest_rect()
 	var position = rect.position + rect.size * 0.5
-	viewer.set_position(position)
 	
 	var zoom = max(
 		rect.size.x / viewport.size.x,
@@ -48,46 +48,74 @@ func _process(delta):
 	)
 
 	zoom = max(zoom, 1.0)
+
+	viewer.set_transform(Transform2D(0, position))
 	
-	camera.zoom = Vector2(zoom, zoom)
-"
+	#camera.zoom = Vector2(zoom, zoom)
+	#camera.align()
+	
+	viewport.set_global_canvas_transform(
+		Transform2D(
+			Vector2(1,0) * 1,
+			Vector2(0,1),
+			(-position + viewport.size * 0.5 * zoom) / Vector2(1, 1)
+		).scaled(Vector2.ONE / zoom)
+	)
+
+func resize():
+	var sz;
+	#sz = get_viewport_rect().size
+	sz = OS.get_window_size()
+	print ('rs', sz)
+	$ViewportContainer.set_end(sz)
+	$ViewportContainer/Viewport.set_size(sz)
+	$ColorRect.set_end(sz)
+	
+	
+	
+	"
 
 [node name="Node2D" type="Node2D"]
 script = SubResource( 1 )
 
 [node name="ViewportContainer" type="ViewportContainer" parent="."]
-margin_right = 1913.0
-margin_bottom = 1088.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+size_flags_horizontal = 11
+size_flags_vertical = 11
 stretch = true
 
 [node name="Viewport" type="Viewport" parent="ViewportContainer"]
-size = Vector2( 1913, 1088 )
+size = Vector2( 1920, 1080 )
 handle_input_locally = false
 disable_3d = true
 usage = 0
 render_target_update_mode = 3
 
-[node name="content" parent="ViewportContainer/Viewport" instance=ExtResource( 1 )]
-
 [node name="viewer" type="Node2D" parent="ViewportContainer/Viewport"]
 
 [node name="camera" type="Camera2D" parent="ViewportContainer/Viewport/viewer"]
-current = true
-zoom = Vector2( 2, 2 )
-limit_left = 0
-limit_top = 0
-limit_right = 50000
-limit_bottom = 50000
-limit_smoothed = true
-drag_margin_h_enabled = false
-drag_margin_v_enabled = false
-smoothing_enabled = true
+visible = false
+limit_left = -50000
+limit_top = -50000
+limit_right = 1000000
+limit_bottom = 1000000
 smoothing_speed = 100.0
-offset_h = 1.0
-drag_margin_left = 1.0
-drag_margin_top = 1.0
-drag_margin_right = 1.0
-drag_margin_bottom = 1.0
+offset_h = 0.01
+drag_margin_left = 0.07
+drag_margin_top = 0.1
+drag_margin_right = 0.09
+drag_margin_bottom = 0.08
+editor_draw_drag_margin = true
+
+[node name="ColorRect" type="ColorRect" parent="ViewportContainer/Viewport/viewer"]
+visible = false
+margin_left = -100.0
+margin_top = -100.0
+margin_right = 100.0
+margin_bottom = 100.0
+
+[node name="content" parent="ViewportContainer/Viewport" instance=ExtResource( 1 )]
 
 [node name="ColorRect" type="ColorRect" parent="."]
 material = ExtResource( 2 )

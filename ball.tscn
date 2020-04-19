@@ -76,8 +76,9 @@ func add_link(link):
 
 func remove_link(link):
 	links.remove(links.find(link))
-	$RigidBody2D.linear_damp = 0.1
-	$RigidBody2D.linear_velocity = Vector2(0,rand_range(100, 300)).rotated(rand_range(0, 2.0*PI))
+	if links.size() == 0:
+		$RigidBody2D.linear_damp = 0.1
+		$RigidBody2D.linear_velocity = Vector2(0,rand_range(100, 300)).rotated(rand_range(0, 2.0*PI))
 
 func get_link_to(ball):
 	for link in links:

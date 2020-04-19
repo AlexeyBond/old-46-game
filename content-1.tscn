@@ -81,7 +81,7 @@ func get_intrest_rect():
 	var rect = Rect2(ch0pos, Vector2(0,0))
 	for ch in balls.get_children():
 		rect = rect.expand(ch.get_position())
-	return rect.grow(300)
+	return rect.grow(500)
 
 func start_drag(position):
 	return get_ball_at_point(position)
@@ -105,7 +105,6 @@ func end_drag(first_ball, position):
 	var lnk = linkscene.instance()
 	$links.add_child(lnk)
 	lnk.init(first_ball, second_ball)
-
 
 
 "
@@ -197,7 +196,6 @@ position = Vector2( 26161.9, 17542 )
 group = 2
 
 [node name="ball3" parent="balls" instance=ExtResource( 1 )]
-visible = false
 position = Vector2( 25899.5, 17822.9 )
 group = 2
 
