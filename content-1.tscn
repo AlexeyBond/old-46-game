@@ -76,11 +76,26 @@ func on_click(world_pos):
 	new_ball.transform = Transform2D(0, world_pos)
 	balls.add_child(new_ball);
 
+var link_rect_weight = 0.8
+
 func get_intrest_rect():
 	var ch0pos = balls.get_children()[0].get_position();
 	var rect = Rect2(ch0pos, Vector2(0,0))
+	var linkRect = null
 	for ch in balls.get_children():
 		rect = rect.expand(ch.get_position())
+		if ch.has_links():
+			if not linkRect:
+				linkRect = Rect2(ch.get_position(), Vector2(0,0))
+			else:
+				linkRect = linkRect.expand(ch.get_position())
+
+	if linkRect:
+		linkRect = linkRect.grow(500)
+		return Rect2(
+			lerp(rect.position, linkRect.position, link_rect_weight),
+			lerp(rect.size, linkRect.size, link_rect_weight)
+		).grow(500)
 	return rect.grow(500)
 
 func start_drag(position):

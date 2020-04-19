@@ -37,29 +37,33 @@ func _input(event):
 			content.on_click(camera.get_global_mouse_position())
 		drag_key = null
 
+var cur_position
+var cur_zoom
 
 func _process(delta):
 	var rect: Rect2 = content.get_intrest_rect()
 	var position = rect.position + rect.size * 0.5
-	
+
 	var zoom = max(
 		rect.size.x / viewport.size.x,
 		rect.size.y / viewport.size.y
 	)
-
 	zoom = max(zoom, 1.0)
 
-	viewer.set_transform(Transform2D(0, position))
-	
-	#camera.zoom = Vector2(zoom, zoom)
-	#camera.align()
+	if not cur_position:
+		cur_position = position
+		cur_zoom = zoom
+	else:
+		var k = pow(0.9, 1/delta)
+		cur_position = lerp(cur_position, position, k)
+		cur_zoom = lerp(cur_zoom, zoom, k)
 	
 	viewport.set_global_canvas_transform(
 		Transform2D(
-			Vector2(1,0) * 1,
+			Vector2(1,0),
 			Vector2(0,1),
-			(-position + viewport.size * 0.5 * zoom) / Vector2(1, 1)
-		).scaled(Vector2.ONE / zoom)
+			-cur_position + viewport.size * 0.5 * cur_zoom
+		).scaled(Vector2.ONE / cur_zoom)
 	)
 
 func resize():

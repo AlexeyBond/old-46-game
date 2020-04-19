@@ -86,6 +86,9 @@ func get_link_to(ball):
 			return link
 	return null
 
+func has_links():
+	return links.size() > 0
+
 func tick_activate_linked(tck):
 	for link in links:
 			var peer = link.other_for(self)
