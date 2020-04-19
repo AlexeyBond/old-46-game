@@ -33,8 +33,11 @@ func randomize():
 	group = ceil(rand_range(-0.99, 2))
 	size = rand_range(0.5, 2)
 
+onready var timer = get_node('../../Timer')
+
 func _ready():
-	get_node('../../Timer').connect('timeout', self, 'tick')
+	# int sometimes is -0 ... WTF?
+	timer.connect('tick' + str(abs(group)), self, 'tick')
 	var group_sounds = sounds[group]
 	group_sounds.shuffle()
 	$AudioStreamPlayer.stream = group_sounds[0];
@@ -54,14 +57,10 @@ func _process(delta):
 func get_position():
 	return $RigidBody2D.get_global_transform().get_origin()
 
-var activated_since_last_tick = false
-var ticks_without_tick_activation = 0
-
-func activate():
+func activate0():
 	$AudioStreamPlayer.play()
 	$RigidBody2D/CPUParticles2D.emitting = true
 	$RigidBody2D/CPUParticles2D.restart()
-	activated_since_last_tick = true
 
 var links = []
 
@@ -80,18 +79,31 @@ func get_link_to(ball):
 			return link
 	return null
 
-func tick():
-	if activated_since_last_tick:
-		for link in links:
+func tick_activate_linked(tck):
+	for link in links:
 			var peer = link.other_for(self)
-			peer.tick_activate()
-		activated_since_last_tick = false
-	ticks_without_tick_activation = ticks_without_tick_activation + 1
+			peer.tick_activate(tck)
 
-func tick_activate():
-	if ticks_without_tick_activation > 1:
+var last_tick = -1
+var last_activated_tick = -2
+var activate_linked_on_tick = -2
+
+func activate():
+	activate0()
+	activate_linked_on_tick = last_tick + 1
+	last_activated_tick = last_tick
+
+func tick(tck):
+	if activate_linked_on_tick == tck:
+		tick_activate_linked(tck)
+
+	last_tick = tck
+
+func tick_activate(tck):
+	last_tick = tck
+	
+	if last_activated_tick < (tck - 2):	
 		activate()
-		ticks_without_tick_activation = 0
 
 "
 
