@@ -6,6 +6,8 @@ var ball2
 var body1: RigidBody2D
 var body2: RigidBody2D
 var initialSpriteTransform: Transform2D
+var r1
+var r2
 
 func init(ball1_, ball2_):
 	ball1 = ball1_
@@ -16,6 +18,7 @@ func init(ball1_, ball2_):
 	
 	ball1.add_link(self)
 	ball2.add_link(self)
+	r1 = rand_range(0.1, 1.5)
 func create_joint_():
 	var j: DampedSpringJoint2D = DampedSpringJoint2D.new()
 	j.set_length(
@@ -35,7 +38,10 @@ func create_joint_():
 func _ready():
 	initialSpriteTransform = $Sprite.transform
 
+var t = 0
+
 func _process(delta):
+	t += fmod((delta * r1), (2 * PI))
 	if (not body1) or (not body2):
 		print ('link not initialized')
 		return
@@ -44,7 +50,7 @@ func _process(delta):
 	
 	$Sprite.transform = Transform2D(
 		(p2 - p1) / 512,
-		(p2 - p1).rotated(PI / 2.0).normalized() * 0.5,
+		(p2 - p1).rotated(PI / 2.0).normalized() * 0.5 * ( 1 + 0.2 * sin(t)),
 		p1
 	)
 	

@@ -67,7 +67,8 @@ func get_ball_at_point(pt):
 	
 	return ball
 
-func on_click(world_pos):
+func on_click():
+	var world_pos = get_global_mouse_position()
 	var exist_ball = get_ball_at_point(world_pos)
 	if exist_ball:
 		exist_ball.activate()
@@ -100,20 +101,48 @@ func get_intrest_rect():
 		).grow(500)
 	return rect.grow(500)
 
-func start_drag(position):
-	return get_ball_at_point(position)
+func drag_progress(ball, position):
+	$drag_arrow.modulate = ball.modulate
+	$drag_arrow.set_visible(true)
+	$drag_arrow.set_transform(Transform2D(
+		(position - ball.get_position()) / 512,
+		(position - ball.get_position()).rotated(PI * 0.5).normalized() * 0.5,
+		ball.get_position()
+	))
 
-func end_drag(first_ball, position):
+var selected_ball = null
+
+func add_selected_ball(ball):
+	if selected_ball:
+		selected_ball.on_unselected()
+	selected_ball = ball
+	ball.on_selected()
+	
+func remove_selected_ball(ball):
+	if selected_ball == ball:
+		selected_ball = null
+		ball.on_unselected()
+
+var link_start_ball = null
+
+func start_drag():
+	link_start_ball = selected_ball
+	return link_start_ball
+
+func end_drag():
 	$drag_arrow.set_visible(false)
+	var first_ball = link_start_ball
+	link_start_ball = null
 	if not first_ball:
+		on_click()
 		return
-	var second_ball = get_ball_at_point(position)
+	var second_ball = selected_ball
 	if not second_ball:
 		return
 	if second_ball.group != first_ball.group:
 		return
 	if first_ball == second_ball:
-		return on_click(position)
+		return on_click()
 	var exist_link = first_ball.get_link_to(second_ball)
 	
 	if exist_link:
@@ -124,14 +153,20 @@ func end_drag(first_ball, position):
 	$links.add_child(lnk)
 	lnk.init(first_ball, second_ball)
 
-func drag_progress(ball, position):
-	$drag_arrow.modulate = ball.modulate
+func do_drag():
+	if not link_start_ball:
+		return
+	var position = get_global_mouse_position()
+	$drag_arrow.modulate = link_start_ball.modulate
 	$drag_arrow.set_visible(true)
 	$drag_arrow.set_transform(Transform2D(
-		(position - ball.get_position()) / 512,
-		(position - ball.get_position()).rotated(PI * 0.5).normalized() * 0.5,
-		ball.get_position()
+		(position - link_start_ball.get_position()) / 512,
+		(position - link_start_ball.get_position()).rotated(PI * 0.5).normalized() * 0.5,
+		link_start_ball.get_position()
 	))
+
+
+
 "
 
 [sub_resource type="RectangleShape2D" id=2]

@@ -39,6 +39,7 @@ func randomize():
 	group = ceil(rand_range(-0.99, 2))
 	size = rand_range(0.5, 2)
 
+onready var content = get_node('../..')
 onready var timer = get_node('../../Timer')
 
 func _ready():
@@ -55,7 +56,7 @@ func _ready():
 	$RigidBody2D.linear_velocity = Vector2(0,rand_range(100, 300)).rotated(rand_range(0, 2.0*PI))
 	$RigidBody2D/sprite.scale = Vector2(size, size)
 	$RigidBody2D/CollisionShape2D.transform = $RigidBody2D/CollisionShape2D.transform.scaled(Vector2(size,size))
-	
+	$RigidBody2D.set_process_input(true)
 
 func _process(delta):
 	pass
@@ -117,13 +118,59 @@ func tick_activate(tck):
 		activate_linked_on_tick = last_tick + 1
 		last_activated_tick = last_tick
 
+
+
+func _on_RigidBody2D_mouse_entered():
+	$RigidBody2D/sprite.scale *= 1.1
+	print('enter')
+
+
+func _on_RigidBody2D_mouse_exited():
+	$RigidBody2D/sprite.scale /= 1.1
+	print('leave')
+
+
+func _on_RigidBody2D_input_event(viewport, event, shape_idx):
+	print('be', event)
+
+
+func _on_ColorRect_mouse_entered():
+	content.add_selected_ball(self)
+
+
+func _on_ColorRect_mouse_exited():
+	content.remove_selected_ball(self)
+
+func on_selected():
+	$RigidBody2D/sprite.scale *= 1.05
+func on_unselected():
+	$RigidBody2D/sprite.scale /= 1.05
+
+var skip_down = false
+
+func _on_ColorRect_gui_input(event):
+	if event is InputEventMouseButton:
+		if event.is_pressed():
+			content.start_drag()
+			
+			# WGRHHHHHAHHRHHRHRAHRHAHRHARRAHHHHHH HM WTF?
+			var e = InputEventMouseButton.new()
+			e.button_index=event.button_index
+			e.pressed = false
+			skip_down = true
+			get_tree().input_event(e)
+		else:
+			if skip_down:
+				skip_down = false
+				return
+			content.end_drag()
+	if event is InputEventMouseMotion:
+		content.do_drag()
 "
 
 [sub_resource type="PhysicsMaterial" id=2]
 friction = 0.0
-rough = true
 bounce = 1.0
-absorbent = true
 
 [sub_resource type="CircleShape2D" id=3]
 radius = 200.0
@@ -136,6 +183,7 @@ colors = PoolColorArray( 0, 0, 0, 1, 0.742188, 0.742188, 0.742188, 1, 0.372559, 
 script = SubResource( 1 )
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
+input_pickable = true
 mass = 748.0
 physics_material_override = SubResource( 2 )
 gravity_scale = 0.0
@@ -166,5 +214,19 @@ scale_amount = 0.0
 scale_amount_random = 0.2
 color_ramp = SubResource( 4 )
 
+[node name="ColorRect" type="ColorRect" parent="RigidBody2D"]
+margin_left = -205.0
+margin_top = -205.0
+margin_right = 205.0
+margin_bottom = 205.0
+rect_pivot_offset = Vector2( 205, 205 )
+color = Color( 1, 1, 1, 0 )
+
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 pause_mode = 2
+[connection signal="input_event" from="RigidBody2D" to="." method="_on_RigidBody2D_input_event"]
+[connection signal="mouse_entered" from="RigidBody2D" to="." method="_on_RigidBody2D_mouse_entered"]
+[connection signal="mouse_exited" from="RigidBody2D" to="." method="_on_RigidBody2D_mouse_exited"]
+[connection signal="gui_input" from="RigidBody2D/ColorRect" to="." method="_on_ColorRect_gui_input"]
+[connection signal="mouse_entered" from="RigidBody2D/ColorRect" to="." method="_on_ColorRect_mouse_entered"]
+[connection signal="mouse_exited" from="RigidBody2D/ColorRect" to="." method="_on_ColorRect_mouse_exited"]

@@ -16,6 +16,8 @@ func _init():
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	resize()
+	$ViewportContainer/Viewport.set_physics_object_picking(true)
+	$ViewportContainer.set_process_input(true)
 	get_tree().get_root().connect(\"size_changed\", self, \"resize\")
 
 onready var viewer = get_node(\"ViewportContainer/Viewport/viewer\");
@@ -29,21 +31,32 @@ func _input(event):
 	if event.is_action('exit'):
 		get_tree().quit();
 	elif event is InputEventMouseMotion:
-		if drag_key:
-			content.drag_progress(drag_key, camera.get_global_mouse_position())
-	elif event.is_action_pressed(\"click\"):
-		drag_key = content.start_drag(camera.get_global_mouse_position())
+		content.do_drag()
+	#	if drag_key:
+	#		content.drag_progress(drag_key, camera.get_global_mouse_position())
+	#elif event.is_action_pressed(\"click\"):
+	#	drag_key = content.start_drag(camera.get_global_mouse_position())
 	elif event.is_action_released('click'):
-		if drag_key:
-			content.end_drag(drag_key, camera.get_global_mouse_position())
-		else:
-			content.on_click(camera.get_global_mouse_position())
-		drag_key = null
+		content.end_drag()
+	#	if drag_key:
+	#		content.end_drag(drag_key, camera.get_global_mouse_position())
+	#	else:
+	#		content.on_click(camera.get_global_mouse_position())
+	#	drag_key = null
+
+#func _unhandled_input(event):
+	if event is InputEventMouse:
+		event.position = camera.get_global_mouse_position()
+		event.global_position = camera.get_global_mouse_position()
+		pass
+	event = camera.make_input_local(event)
+	viewport.input(event)
 
 var cur_position
 var cur_zoom
 
 func _process(delta):
+	set_process_input(true)
 	var rect: Rect2 = content.get_intrest_rect()
 	var position = rect.position + rect.size * 0.5
 
@@ -88,6 +101,7 @@ script = SubResource( 1 )
 [node name="ViewportContainer" type="ViewportContainer" parent="."]
 margin_right = 1920.0
 margin_bottom = 1080.0
+mouse_filter = 1
 size_flags_horizontal = 11
 size_flags_vertical = 11
 stretch = true
@@ -100,6 +114,7 @@ usage = 0
 render_target_update_mode = 3
 
 [node name="viewer" type="Node2D" parent="ViewportContainer/Viewport"]
+editor/display_folded = true
 
 [node name="camera" type="Camera2D" parent="ViewportContainer/Viewport/viewer"]
 visible = false
@@ -130,3 +145,4 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 margin_right = 1920.0
 margin_bottom = 1080.0
+mouse_filter = 2
