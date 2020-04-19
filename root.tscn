@@ -83,6 +83,7 @@ drag_margin_h_enabled = false
 drag_margin_v_enabled = false
 smoothing_enabled = true
 smoothing_speed = 100.0
+offset_h = 1.0
 drag_margin_left = 1.0
 drag_margin_top = 1.0
 drag_margin_right = 1.0
