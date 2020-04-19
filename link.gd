@@ -44,7 +44,7 @@ func _process(delta):
 	
 	$Sprite.transform = Transform2D(
 		(p2 - p1) / 512,
-		(p2 - p1).rotated(PI / 2.0).normalized() * 0.2,
+		(p2 - p1).rotated(PI / 2.0).normalized() * 0.5,
 		p1
 	)
 	

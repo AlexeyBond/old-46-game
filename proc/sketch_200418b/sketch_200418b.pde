@@ -9,7 +9,7 @@ void draw() {
 
   for (int i = 0; i < 512; ++i) {
     float fk = ((float)i) / 512f;
-    float fc = pow(min(1f, fk * 1.5), 2);
+    float fc = pow(min(1f, fk * 1), 2);
     int c = (int)(fc * 255);
     fill(c);
     stroke(c);
