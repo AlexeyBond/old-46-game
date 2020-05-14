@@ -56,6 +56,7 @@ var cur_position
 var cur_zoom
 
 func _process(delta):
+	delta = delta
 	set_process_input(true)
 	var rect: Rect2 = content.get_intrest_rect()
 	var position = rect.position + rect.size * 0.5
@@ -70,7 +71,24 @@ func _process(delta):
 		cur_position = position
 		cur_zoom = zoom
 	else:
-		var k = pow(0.9, 1/delta)
+		#var k = pow(0.5, -delta)
+		var max_travel_speed = 100 * zoom
+		var max_zoom_speed = 0.5 * zoom
+		
+		var distance_to_move = position.distance_to(cur_position) / zoom
+		var zoom_to_zoom = abs(cur_zoom - zoom)
+		
+		var k
+		if zoom_to_zoom > 0 and distance_to_move > 0:
+			k = min(
+				max_travel_speed * delta / distance_to_move,
+				max_zoom_speed * delta / zoom_to_zoom
+			)
+		else:
+			k = 1
+		k = k * ((zoom_to_zoom / zoom) * 10)
+		k = min(k, 1.0)
+		
 		cur_position = lerp(cur_position, position, k)
 		cur_zoom = lerp(cur_zoom, zoom, k)
 	
